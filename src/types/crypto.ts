@@ -1,16 +1,17 @@
 export interface CandleData {
-  openTime: number;
+  openTime: string;
   open: string;
   high: string;
   low: string;
   close: string;
   volume: string;
-  closeTime: number;
+  closeTime: string;
   quoteAssetVolume: string;
   numberOfTrades: number;
   takerBuyBaseAssetVolume: string;
   takerBuyQuoteAssetVolume: string;
-  unused: string;
+  ignore: string;
+  coinId: string;
 }
 
 export interface TechnicalIndicators {

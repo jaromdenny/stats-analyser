@@ -92,11 +92,17 @@ export function PriceChart({ data }: PriceChartProps) {
     xAxis: {
       type: 'time',
       scale: true,
-      boundaryGap: false,
+      boundaryGap: true,
       axisLine: { onZero: false },
       splitLine: { show: false },
       min: 'dataMin',
-      max: 'dataMax'
+      max: 'dataMax',
+      axisLabel: {
+        formatter: (value: number) => {
+          const date = new Date(value);
+          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+      }
     },
     yAxis: {
       scale: true,
@@ -114,7 +120,8 @@ export function PriceChart({ data }: PriceChartProps) {
           color0: '#26a69a',
           borderColor: '#ef5350',
           borderColor0: '#26a69a'
-        }
+        },
+        barWidth: '80%'
       },
       {
         name: 'MA5',

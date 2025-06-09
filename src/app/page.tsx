@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { PriceChart } from '@/components/PriceChart';
 import { IndicatorsChart } from '@/components/IndicatorsChart';
+import { TradingStrategyPanel } from '@/components/TradingStrategyPanel';
 import { processCandleData, calculateIndicators } from '@/lib/indicators';
 import { getAvailableDatasets } from '@/lib/data';
 import { CandleData, TechnicalIndicators } from '@/types/crypto';
@@ -43,42 +44,37 @@ export default function Home() {
     loadData();
   }, [selectedFile]);
 
+  const handleDatasetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedFile(event.target.value);
+  };
+
   return (
     <main className="min-h-screen p-8 bg-gray-100">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Cryptocurrency Analysis</h1>
-        
-        <div className="mb-8">
-          <label htmlFor="file-select" className="block text-sm font-medium text-gray-700 mb-2">
-            Select Dataset
-          </label>
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Cryptocurrency Analysis</h1>
           <select
-            id="file-select"
             value={selectedFile}
-            onChange={(e) => setSelectedFile(e.target.value)}
-            className="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            onChange={handleDatasetChange}
+            className="block w-64 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           >
-            {availableDatasets.map((dataset) => (
-              <option key={dataset} value={dataset}>
-                {dataset.replace('.json', '')}
-              </option>
-            ))}
+            <option value="">Select a dataset</option>
+            {availableDatasets.map(dataset => <option key={dataset} value={dataset}>{dataset}</option>)}
           </select>
         </div>
 
-        <div className="space-y-8">
-          {data.length > 0 && (
-            <>
-              <PriceChart data={data} />
-              {indicators && (
-                <>
-                  <IndicatorsChart data={data} indicators={indicators} type="MACD" />
-                  <IndicatorsChart data={data} indicators={indicators} type="RSI" />
-                </>
-              )}
-            </>
-          )}
-        </div>
+        {data.length > 0 && (
+          <>
+            <PriceChart data={data} />
+            {indicators && (
+              <>
+                <IndicatorsChart data={data} indicators={indicators} type="MACD" />
+                <IndicatorsChart data={data} indicators={indicators} type="RSI" />
+              </>
+            )}
+            <TradingStrategyPanel data={data} />
+          </>
+        )}
       </div>
     </main>
   );
