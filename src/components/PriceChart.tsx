@@ -1,5 +1,6 @@
 import ReactECharts from 'echarts-for-react';
 import { CandleData } from '@/types/crypto';
+import { useChartContext } from './ChartContext';
 
 interface PriceChartProps {
   data: CandleData[];
@@ -22,7 +23,17 @@ function calculateMA(dayCount: number, data: number[][]) {
 }
 
 export function PriceChart({ data }: PriceChartProps) {
-  const chartData = data.map(d => [
+  const { timeRange } = useChartContext();
+  
+  // Filter data based on time range if available
+  const filteredData = timeRange 
+    ? data.filter(d => {
+        const timestamp = new Date(d.openTime).getTime();
+        return timestamp >= timeRange.start && timestamp <= timeRange.end;
+      })
+    : data;
+  
+  const chartData = filteredData.map(d => [
     new Date(d.openTime).getTime(),
     parseFloat(d.open),
     parseFloat(d.close),
@@ -81,12 +92,17 @@ export function PriceChart({ data }: PriceChartProps) {
       {
         type: 'inside',
         start: 0,
-        end: 100
+        end: 100,
+        zoomOnMouseWheel: true,
+        moveOnMouseMove: true,
+        preventDefaultMouseMove: true
       },
       {
         show: true,
         type: 'slider',
-        bottom: 10
+        bottom: 10,
+        start: 0,
+        end: 100
       }
     ],
     xAxis: {
@@ -95,8 +111,8 @@ export function PriceChart({ data }: PriceChartProps) {
       boundaryGap: true,
       axisLine: { onZero: false },
       splitLine: { show: false },
-      min: 'dataMin',
-      max: 'dataMax',
+      min: timeRange ? timeRange.start : 'dataMin',
+      max: timeRange ? timeRange.end : 'dataMax',
       axisLabel: {
         formatter: (value: number) => {
           const date = new Date(value);

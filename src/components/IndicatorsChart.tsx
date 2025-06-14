@@ -12,6 +12,7 @@ import {
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import { CandleData, TechnicalIndicators } from '@/types/crypto';
+import { useChartContext } from './ChartContext';
 
 ChartJS.register(
   CategoryScale,
@@ -31,35 +32,54 @@ interface IndicatorsChartProps {
 }
 
 export function IndicatorsChart({ data, indicators, type }: IndicatorsChartProps) {
+  const { timeRange } = useChartContext();
+  
+  // Filter data based on time range if available
+  const filteredData = timeRange 
+    ? data.filter(d => {
+        const timestamp = new Date(d.openTime).getTime();
+        return timestamp >= timeRange.start && timestamp <= timeRange.end;
+      })
+    : data;
+
   const chartData = {
-    labels: data.map(d => new Date(d.openTime)),
+    labels: filteredData.map(d => new Date(d.openTime)),
     datasets: type === 'MACD' ? [
       {
         label: 'MACD',
-        data: data.map((d, i) => ({
-          x: new Date(d.openTime),
-          y: indicators.macd.MACD[i]
-        })),
+        data: filteredData.map((d, i) => {
+          const originalIndex = data.findIndex(originalD => originalD.openTime === d.openTime);
+          return {
+            x: new Date(d.openTime),
+            y: indicators.macd.MACD[originalIndex]
+          };
+        }),
         borderColor: 'rgb(75, 192, 192)',
         tension: 0.1,
         spanGaps: true,
       },
       {
         label: 'Signal',
-        data: data.map((d, i) => ({
-          x: new Date(d.openTime),
-          y: indicators.macd.signal[i]
-        })),
+        data: filteredData.map((d, i) => {
+          const originalIndex = data.findIndex(originalD => originalD.openTime === d.openTime);
+          return {
+            x: new Date(d.openTime),
+            y: indicators.macd.signal[originalIndex]
+          };
+        }),
         borderColor: 'rgb(255, 99, 132)',
         tension: 0.1,
         spanGaps: true,
       },
       {
         label: 'Histogram',
-        data: data.map((d, i) => ({
-          x: new Date(d.openTime),
-          y: indicators.macd.histogram[i]
-        })),
+        data: filteredData.map((d, i) => {
+          const originalIndex = data.findIndex(originalD => originalD.openTime === d.openTime);
+          return {
+            x: new Date(d.openTime),
+            y: indicators.macd.histogram[originalIndex]
+          };
+        }),
         borderColor: 'rgb(54, 162, 235)',
         tension: 0.1,
         spanGaps: true,
@@ -67,10 +87,13 @@ export function IndicatorsChart({ data, indicators, type }: IndicatorsChartProps
     ] : [
       {
         label: 'RSI',
-        data: data.map((d, i) => ({
-          x: new Date(d.openTime),
-          y: indicators.rsi[i]
-        })),
+        data: filteredData.map((d, i) => {
+          const originalIndex = data.findIndex(originalD => originalD.openTime === d.openTime);
+          return {
+            x: new Date(d.openTime),
+            y: indicators.rsi[originalIndex]
+          };
+        }),
         borderColor: 'rgb(54, 162, 235)',
         tension: 0.1,
         spanGaps: true,
@@ -95,6 +118,8 @@ export function IndicatorsChart({ data, indicators, type }: IndicatorsChartProps
         time: {
           unit: 'day' as const,
         },
+        min: timeRange ? timeRange.start : undefined,
+        max: timeRange ? timeRange.end : undefined,
       },
       y: {
         beginAtZero: false,

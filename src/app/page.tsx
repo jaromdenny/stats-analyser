@@ -4,15 +4,37 @@ import { useState, useEffect } from 'react';
 import { PriceChart } from '@/components/PriceChart';
 import { IndicatorsChart } from '@/components/IndicatorsChart';
 import { TradingStrategyPanel } from '@/components/TradingStrategyPanel';
+import { ChartProvider } from '@/components/ChartContext';
+import { DateRangePicker } from '@/components/DateRangePicker';
 import { processCandleData, calculateIndicators } from '@/lib/indicators';
 import { getAvailableDatasets } from '@/lib/data';
 import { CandleData, TechnicalIndicators } from '@/types/crypto';
+import { StrategyConfig } from '@/types/trading';
 
 export default function Home() {
   const [data, setData] = useState<CandleData[]>([]);
   const [indicators, setIndicators] = useState<TechnicalIndicators | null>(null);
   const [selectedFile, setSelectedFile] = useState<string>('');
   const [availableDatasets, setAvailableDatasets] = useState<string[]>([]);
+
+  // Default strategy config for chart indicators
+  const defaultConfig: StrategyConfig = {
+    rsiPeriod: 6,
+    rsiOverbought: 65,
+    rsiOversold: 45,
+    rsiExtremeOversold: 30,
+    rsiExtremeOverbought: 77,
+    macdFastPeriod: 12,
+    macdSlowPeriod: 26,
+    macdSignalPeriod: 9,
+    allowedCoinBalance: 1000,
+    initialBalance: 10000,
+    partialFillTolerance: 5,
+    oversoldBuyPercentage: 30,
+    extremeOversoldBuyPercentage: 40,
+    overboughtSellPercentage: 100,
+    extremeOverboughtSellPercentage: 100
+  };
 
   useEffect(() => {
     const loadDatasets = async () => {
@@ -35,7 +57,7 @@ export default function Home() {
         const rawData = await response.json();
         const processedData = processCandleData(rawData);
         setData(processedData);
-        setIndicators(calculateIndicators(processedData));
+        setIndicators(calculateIndicators(processedData, defaultConfig));
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -64,7 +86,8 @@ export default function Home() {
         </div>
 
         {data.length > 0 && (
-          <>
+          <ChartProvider>
+            <DateRangePicker data={data} />
             <PriceChart data={data} />
             {indicators && (
               <>
@@ -73,7 +96,7 @@ export default function Home() {
               </>
             )}
             <TradingStrategyPanel data={data} />
-          </>
+          </ChartProvider>
         )}
       </div>
     </main>

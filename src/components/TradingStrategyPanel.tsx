@@ -10,16 +10,20 @@ interface TradingStrategyPanelProps {
 export function TradingStrategyPanel({ data }: TradingStrategyPanelProps) {
   const [config, setConfig] = useState<StrategyConfig>({
     rsiPeriod: 6,
-    rsiOverbought: 75,
-    rsiOversold: 25,
-    rsiExtremeOversold: 15,
-    rsiExtremeOverbought: 85,
+    rsiOverbought: 65,
+    rsiOversold: 45,
+    rsiExtremeOversold: 30,
+    rsiExtremeOverbought: 77,
     macdFastPeriod: 12,
     macdSlowPeriod: 26,
     macdSignalPeriod: 9,
     allowedCoinBalance: 1000,
     initialBalance: 10000,
-    partialFillTolerance: 5
+    partialFillTolerance: 5,
+    oversoldBuyPercentage: 30,
+    extremeOversoldBuyPercentage: 40,
+    overboughtSellPercentage: 100,
+    extremeOverboughtSellPercentage: 100
   });
 
   const [results, setResults] = useState<TradeHistory>({
@@ -69,6 +73,68 @@ export function TradingStrategyPanel({ data }: TradingStrategyPanelProps) {
             type="number"
             value={config.rsiOversold}
             onChange={(e) => handleConfigChange('rsiOversold', Number(e.target.value))}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">RSI Extreme Oversold</label>
+          <input
+            type="number"
+            value={config.rsiExtremeOversold}
+            onChange={(e) => handleConfigChange('rsiExtremeOversold', Number(e.target.value))}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">RSI Extreme Overbought</label>
+          <input
+            type="number"
+            value={config.rsiExtremeOverbought}
+            onChange={(e) => handleConfigChange('rsiExtremeOverbought', Number(e.target.value))}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Oversold Buy %</label>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value={config.oversoldBuyPercentage}
+            onChange={(e) => handleConfigChange('oversoldBuyPercentage', Number(e.target.value))}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Extreme Oversold Buy %</label>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value={config.extremeOversoldBuyPercentage}
+            onChange={(e) => handleConfigChange('extremeOversoldBuyPercentage', Number(e.target.value))}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Overbought Sell %</label>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value={config.overboughtSellPercentage}
+            onChange={(e) => handleConfigChange('overboughtSellPercentage', Number(e.target.value))}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Extreme Overbought Sell %</label>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value={config.extremeOverboughtSellPercentage}
+            onChange={(e) => handleConfigChange('extremeOverboughtSellPercentage', Number(e.target.value))}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
         </div>

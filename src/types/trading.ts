@@ -22,6 +22,10 @@ export interface StrategyConfig {
   allowedCoinBalance: number;
   initialBalance: number;
   partialFillTolerance: number;
+  oversoldBuyPercentage: number;
+  extremeOversoldBuyPercentage: number;
+  overboughtSellPercentage: number;
+  extremeOverboughtSellPercentage: number;
 }
 
 export interface TradeHistory {

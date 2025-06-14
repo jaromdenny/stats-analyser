@@ -1,4 +1,5 @@
 import { CandleData, TechnicalIndicators } from '@/types/crypto';
+import { StrategyConfig } from '@/types/trading';
 import { MACD, RSI } from 'technicalindicators';
 
 export function processCandleData(rawData: any[]): CandleData[] {
@@ -14,38 +15,39 @@ export function processCandleData(rawData: any[]): CandleData[] {
     numberOfTrades: candle[8],
     takerBuyBaseAssetVolume: candle[9],
     takerBuyQuoteAssetVolume: candle[10],
-    unused: candle[11]
+    ignore: candle[11],
+    coinId: 'BTCUSDT' // Default coin ID, should be passed as parameter
   }));
 }
 
-export function calculateIndicators(data: CandleData[]): TechnicalIndicators {
+export function calculateIndicators(data: CandleData[], config: StrategyConfig): TechnicalIndicators {
   // Convert string prices to numbers and ensure they're in chronological order
   const closes = data
-    .sort((a, b) => a.openTime - b.openTime)
+    .sort((a, b) => Number(a.openTime) - Number(b.openTime))
     .map(d => parseFloat(d.close));
   
-  // Calculate MACD
+  // Calculate MACD using configurable periods
   const macdInput = {
     values: closes,
-    fastPeriod: 12,
-    slowPeriod: 26,
-    signalPeriod: 9,
+    fastPeriod: config.macdFastPeriod,
+    slowPeriod: config.macdSlowPeriod,
+    signalPeriod: config.macdSignalPeriod,
     SimpleMAOscillator: false,
     SimpleMASignal: false
   };
   
-  const macd = MACD.calculate(macdInput);
+  const macdResults = MACD.calculate(macdInput);
   
   // Pad the beginning of the arrays with null values to match the original data length
-  const padLength = closes.length - macd.length;
-  const paddedMACD = Array(padLength).fill(null).concat(macd.map(m => m.MACD));
-  const paddedSignal = Array(padLength).fill(null).concat(macd.map(m => m.signal));
-  const paddedHistogram = Array(padLength).fill(null).concat(macd.map(m => m.histogram));
+  const padLength = closes.length - macdResults.length;
+  const paddedMACD = Array(padLength).fill(null).concat(macdResults.map(m => m.MACD));
+  const paddedSignal = Array(padLength).fill(null).concat(macdResults.map(m => m.signal));
+  const paddedHistogram = Array(padLength).fill(null).concat(macdResults.map(m => m.histogram));
   
-  // Calculate RSI
+  // Calculate RSI using configurable period
   const rsiInput = {
     values: closes,
-    period: 14
+    period: config.rsiPeriod
   };
   
   const rsi = RSI.calculate(rsiInput);
